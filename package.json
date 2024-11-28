@@ -34,16 +34,19 @@
     "lucide-react": "^0.453.0",
     "next": "^14.2.5",
     "react": "^18",
+    "react-cytoscapejs": "^2.0.0",
     "react-force-graph-2d": "^1.25.7",
     "react-hook-form": "^7.53.0",
     "shadcn": "^2.1.0",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vis-network": "^9.1.9"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.4",
     "@commitlint/config-conventional": "^18.4.4",
     "@types/aos": "^3.0.7",
+    "@types/cytoscape": "^3.21.8",
     "@types/lodash.get": "^4.4.9",
     "@types/node": "^20",
     "@types/react": "^18",

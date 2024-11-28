@@ -1,6 +1,7 @@
 // Dashboard.tsx
 import Typography from '@/components/Typography';
 import SentimentForm from './components/SentimentForm';
+import GraphFormVisualizer from './components/graph';
 
 export default function Dashboard() {
   return (
@@ -16,7 +17,7 @@ export default function Dashboard() {
           rounded-lg border-[transparent] bg-[hsla(0,0%,100%,0.05)] p-6 shadow-[0_4px_6px_rgba(0,0,0,0.1)] outline-none
           backdrop-blur-lg backdrop-saturate-[1.8] transition-[transform,_background] pt-16'
         >
-          <SentimentForm />
+          <GraphFormVisualizer />
         </div>
       </div>
       <div className='w-full'></div>

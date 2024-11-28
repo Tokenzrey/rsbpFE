@@ -1,4 +1,3 @@
-// SentimentForm.tsx
 'use client';
 
 import Button from '@/components/buttons/Button';
@@ -8,24 +7,33 @@ import * as react from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 export default function SentimentForm() {
-  const [isAnswer, setIsAnswer] = react.useState<boolean>(false); // Memperbaiki set state
-  const [sentiment, setSentiment] = react.useState<string | null>(null); // Menyimpan hasil sentimen
+  const [isAnswer, setIsAnswer] = react.useState<boolean>(false); 
+  const [sentiment, setSentiment] = react.useState<string | null>(null); 
   const methods = useForm({
     mode: 'onTouched',
   });
   const { handleSubmit } = methods;
 
+  // Fungsi untuk menghasilkan sentimen acak
+  const generateRandomSentiment = (): string => {
+    const sentiments = ['Positive', 'Negative', 'Neutral']; 
+    return sentiments[Math.floor(Math.random() * sentiments.length)];
+  };
+
   // Fungsi untuk menangani submit form
   const onSubmit = (data: any) => {
     setIsAnswer(true);
     console.log('Form submitted:', data);
-    // Placeholder untuk logika analisis sentimen
-    setSentiment('Neutral'); // Hasil analisis sementara
+    const randomSentiment = generateRandomSentiment(); 
+    setSentiment(randomSentiment); 
   };
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className='w-full max-w-md mx-auto space-y-4'
+      >
         <Input
           id='kalimat'
           className='w-full rounded-lg border-2 border-blue-400 p-2 placeholder:font-normal'
@@ -41,10 +49,12 @@ export default function SentimentForm() {
         </div>
       </form>
 
-      {isAnswer && (
-        <Badge variant='outline' className='absolute right-6 top-6 w-fit'>
-          {sentiment}
-        </Badge>
+      {isAnswer && sentiment && (
+        <div className='mt-6'>
+          <Badge variant='outline' className='w-full text-center'>
+            Sentimen: {sentiment}
+          </Badge>
+        </div>
       )}
     </FormProvider>
   );
