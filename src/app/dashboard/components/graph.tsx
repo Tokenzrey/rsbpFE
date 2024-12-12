@@ -86,9 +86,12 @@ export default function SentimentGraphPage() {
 
     try {
       // Fetch graph data from /build_graph/
-      const graphResponse = await axios.post('/build_graph/', {
-        sentence: inputText,
-      });
+      const graphResponse = await axios.post(
+        'http://localhost:8000/build_graph/',
+        {
+          sentence: inputText,
+        },
+      );
       const graphData = graphResponse.data;
 
       // Parse nodes and edges from API response
@@ -108,9 +111,12 @@ export default function SentimentGraphPage() {
       setEdges(newEdges);
 
       // Fetch sentiment from /predict_sentiment/
-      const sentimentResponse = await axios.post('/predict_sentiment/', {
-        sentence: inputText,
-      });
+      const sentimentResponse = await axios.post(
+        'http://localhost:8000/predict_sentiment/',
+        {
+          sentence: inputText,
+        },
+      );
       setSentiment(sentimentResponse.data.predicted_sentiment);
     } catch (err) {
       console.error(err);
