@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/components/buttons/Button';
 import Input from '@/components/form/Input';
+import axios from 'axios';
 
 interface Node {
   id: string;
@@ -18,21 +19,15 @@ interface Edge {
 }
 
 export default function SentimentGraphPage() {
-  const [nodes, setNodes] = useState<Node[]>([]); // Node untuk graf
-  const [edges, setEdges] = useState<Edge[]>([]); // Edge untuk graf
-  const [sentiment, setSentiment] = useState<string | null>(null); // Sentimen analisis
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const [sentiment, setSentiment] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const networkContainer = useRef<HTMLDivElement | null>(null);
   const methods = useForm({
     mode: 'onTouched',
   });
   const { handleSubmit } = methods;
-
-  // Fungsi untuk menghasilkan sentimen acak
-  const generateRandomSentiment = (): string => {
-    const sentiments = ['Positive', 'Negative', 'Neutral'];
-    return sentiments[Math.floor(Math.random() * sentiments.length)];
-  };
 
   useEffect(() => {
     if (networkContainer.current && nodes.length > 0) {
@@ -51,8 +46,8 @@ export default function SentimentGraphPage() {
             size: 20,
             color: '#0074D9',
             font: {
-              color: '#000000', // Ubah warna teks label menjadi hitam
-              size: 14, // Sesuaikan ukuran font jika diperlukan
+              color: '#000000',
+              size: 14,
             },
           },
           edges: {
@@ -73,15 +68,13 @@ export default function SentimentGraphPage() {
         },
       );
 
-      // Tambahkan interaktivitas jika diperlukan
       network.on('click', (event) => {
         console.log('Node or edge clicked:', event);
       });
     }
   }, [nodes, edges]);
 
-  // Fungsi untuk menangani submit form
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     const inputText = data.kalimat;
 
     if (!inputText.trim()) {
@@ -89,42 +82,40 @@ export default function SentimentGraphPage() {
       return;
     }
 
-    setError(null); // Reset error jika valid
-    const words = Array.from(
-      new Set(inputText.trim().split(/\s+/)),
-    ) as string[]; // Kata unik dari teks
-    const letterId = 'letter'; // ID node untuk teks lengkap
+    setError(null);
 
-    // Node teks lengkap
-    const newNodes: Node[] = [{ id: letterId, label: inputText }];
+    try {
+      // Fetch graph data from /build_graph/
+      const graphResponse = await axios.post('/build_graph/', {
+        sentence: inputText,
+      });
+      const graphData = graphResponse.data;
 
-    // Node kata unik
-    newNodes.push(
-      ...words.map((word: string, index: number) => ({
-        id: `word-${index}`,
-        label: word,
-      })),
-    );
+      // Parse nodes and edges from API response
+      const newNodes: Node[] = Object.entries(graphData.nodes).map(
+        ([key, value]: any) => ({
+          id: key,
+          label: value.label,
+        }),
+      );
 
-    // Edge dari setiap kata ke teks lengkap
-    const newEdges: Edge[] = words.map((_, index: number) => ({
-      from: `word-${index}`,
-      to: letterId,
-    }));
+      const newEdges: Edge[] = graphData.edges.map((edge: any) => ({
+        from: edge.source,
+        to: edge.target,
+      }));
 
-    // Set nodes dan edges
-    setNodes(newNodes);
-    setEdges(newEdges);
+      setNodes(newNodes);
+      setEdges(newEdges);
 
-    // Hasilkan sentimen acak
-    const randomSentiment = generateRandomSentiment();
-    setSentiment(randomSentiment);
-
-    // Log semua label node
-    console.log(
-      'Nodes:',
-      newNodes.map((node) => node.label),
-    );
+      // Fetch sentiment from /predict_sentiment/
+      const sentimentResponse = await axios.post('/predict_sentiment/', {
+        sentence: inputText,
+      });
+      setSentiment(sentimentResponse.data.predicted_sentiment);
+    } catch (err) {
+      console.error(err);
+      setError('Terjadi kesalahan saat memproses permintaan.');
+    }
   };
 
   return (
@@ -134,7 +125,6 @@ export default function SentimentGraphPage() {
       </h1>
 
       <FormProvider {...methods}>
-        {/* Form Input */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className='mx-auto w-full max-w-xl space-y-4'
@@ -154,10 +144,8 @@ export default function SentimentGraphPage() {
           </div>
         </form>
 
-        {/* Error Handling */}
         {error && <p className='text-center text-red-500'>{error}</p>}
 
-        {/* Badge Sentimen */}
         {sentiment && (
           <div className='mt-6 text-center'>
             <Badge variant='outline' className='text-lg'>
@@ -167,7 +155,6 @@ export default function SentimentGraphPage() {
         )}
       </FormProvider>
 
-      {/* Container untuk Vis Network */}
       <div
         ref={networkContainer}
         style={{ width: '100%', height: '500px', border: '1px solid #ddd' }}
