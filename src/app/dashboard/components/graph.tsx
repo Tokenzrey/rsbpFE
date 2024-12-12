@@ -16,6 +16,7 @@ interface Node {
 interface Edge {
   from: string;
   to: string;
+  weight: string;
 }
 
 export default function SentimentGraphPage() {
@@ -38,6 +39,10 @@ export default function SentimentGraphPage() {
           edges: edges.map((edge) => ({
             from: edge.from,
             to: edge.to,
+            label: edge.weight, // Display the weight above the edge
+            font: {
+              align: 'top', // Align the weight above the edge
+            },
           })),
         },
         {
@@ -57,6 +62,9 @@ export default function SentimentGraphPage() {
                 enabled: true,
                 scaleFactor: 1,
               },
+            },
+            font: {
+              align: 'horizontal',
             },
           },
           layout: {
@@ -105,6 +113,7 @@ export default function SentimentGraphPage() {
       const newEdges: Edge[] = graphData.edges.map((edge: any) => ({
         from: edge.source,
         to: edge.target,
+        weight: edge.weight.toFixed(2), // Format weight to 2 decimal places
       }));
 
       setNodes(newNodes);
